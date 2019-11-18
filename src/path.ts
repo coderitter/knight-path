@@ -17,6 +17,10 @@ export default class Path {
     return nativePath.parse(this.path).name
   }
 
+  get dir(): Path {
+    return new Path(nativePath.parse(this.path).dir)
+  }
+
   exists(): boolean {
     return fs.existsSync(this.path)
   }
