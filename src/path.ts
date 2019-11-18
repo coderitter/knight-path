@@ -37,6 +37,10 @@ export default class Path {
     return fs.lstatSync(this.path).isDirectory()
   }
 
+  getDir(): Path {
+    return new Path(this.dir)
+  }
+
   contents(): Path[] {
     return fs.readdirSync(this.path).map(path => this.appendToNew(path))
   }
