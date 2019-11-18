@@ -13,12 +13,16 @@ export default class Path {
     return nativePath.join(...this.paths)
   }
 
-  get name(): string {
+  get lastPart(): string {
+    return nativePath.parse(this.path).base
+  }
+
+  get lastPartWithoutExtension(): string {
     return nativePath.parse(this.path).name
   }
 
-  get dir(): Path {
-    return new Path(nativePath.parse(this.path).dir)
+  get dir(): string {
+    return nativePath.parse(this.path).dir
   }
 
   exists(): boolean {
