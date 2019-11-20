@@ -10,7 +10,7 @@ export default class Path {
   }
 
   get path(): string {
-    return nativePath.join(...this.paths)
+    return nativePath.normalize(nativePath.join(...this.paths))
   }
 
   get lastPart(): string {
@@ -23,6 +23,44 @@ export default class Path {
 
   get dir(): string {
     return nativePath.parse(this.path).dir
+  }
+
+  get length(): number {
+    return this.split().length
+  }
+
+  part(index: number): string|undefined {
+    let splitted = this.split()
+    if (index < splitted.length) {
+      return splitted[index]
+    }
+  }
+
+  split(): string[] {
+    let path = this.path
+    
+    if (path.indexOf('/') == 0) {
+      path = path.substr(1)
+    }
+
+    if (path.lastIndexOf('/') == path.length - 1) {
+      path.substr(0, path.length - 1)
+    }
+
+    return path.split('/')
+  }
+
+  iterateFiles(handleFile: (file: Path) => void, recursive: boolean = true) {
+    if (this.isDir) {
+      for (let content of this.contents()) {
+        if (content.isFile()) {
+          handleFile(content)
+        }
+        else if (recursive && content.isDir) {
+          content.iterateFiles(handleFile)
+        }
+      }
+    }
   }
 
   exists(): boolean {
@@ -67,13 +105,49 @@ export default class Path {
     }
   }
 
-  useDirOfThisFile(...path: (string | Path)[]) {
-    this.prepend(__dirname)
-    this.append(...path)
+  subtract(path: Path): Path {
+    let subtractFrom = this.split()
+    let subtract = path.split()
+
+    let i = 0
+    
+    while (i < subtract.length && i < subtractFrom.length &&
+        subtract[i] == subtractFrom[i]) {
+      
+      i++
+    }
+
+    let subtracted = subtractFrom.splice(i)
+    return new Path(...subtracted)
   }
 
   appendToNew(...path: (string | Path)[]): Path {
     return new Path(...this.paths, ...path)
+  }
+
+  equals(path: string|Path): boolean {
+    let equalTo: Path
+    if (typeof path === 'string') {
+      equalTo = new Path(path)
+    }
+    else {
+      equalTo = path
+    }
+
+    let splitted = this.split()
+    let equalToSplitted = equalTo.split()
+
+    if (splitted.length !== equalToSplitted.length) {
+      return false
+    }
+
+    for (let i = 0; i < splitted.length; i++) {
+      if (splitted[i] != equalToSplitted[i]) {
+        return false
+      }
+    }
+
+    return true
   }
 
   mkDir() {
