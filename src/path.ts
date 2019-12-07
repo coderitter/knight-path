@@ -13,11 +13,11 @@ export default class Path {
     return nativePath.normalize(nativePath.join(...this.paths))
   }
 
-  get lastPart(): string {
+  get filename(): string {
     return nativePath.parse(this.path).base
   }
 
-  get lastPartWithoutExtension(): string {
+  get filenameWithoutExtension(): string {
     return nativePath.parse(this.path).name
   }
 
