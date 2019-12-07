@@ -36,6 +36,10 @@ export default class Path {
     }
   }
 
+  dirPath(): Path {
+    return new Path(this.dir)
+  }
+
   split(): string[] {
     let path = this.path
     
@@ -73,10 +77,6 @@ export default class Path {
 
   isDir(): boolean {
     return fs.lstatSync(this.path).isDirectory()
-  }
-
-  getDir(): Path {
-    return new Path(this.dir)
   }
 
   contents(): Path[] {
