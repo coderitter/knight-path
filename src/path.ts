@@ -150,6 +150,31 @@ export default class Path {
     return true
   }
 
+  startsWith(path: (string | Path)): boolean {
+    let startsWith: Path
+    if (typeof path === 'string') {
+      startsWith = new Path(path)
+    }
+    else {
+      startsWith = path
+    }
+
+    let splitted = this.split()
+    let startsWithSplitted = startsWith.split()
+
+    if (startsWithSplitted.length > splitted.length) {
+      return false
+    }
+
+    for (let i = 0; i < startsWithSplitted.length; i++) {
+      if (splitted[i] != startsWithSplitted[i]) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   mkDir() {
     fs.mkdirSync(this.path, { recursive: true })
   }
