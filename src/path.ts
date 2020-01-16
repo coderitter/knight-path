@@ -1,5 +1,5 @@
-import * as fs from "fs"
-import * as nativePath from "path"
+import * as fs from 'fs'
+import * as nativePath from 'path'
 
 export default class Path {
 
@@ -43,15 +43,15 @@ export default class Path {
   split(): string[] {
     let path = this.path
     
-    if (path.indexOf('/') == 0) {
+    if (path.indexOf(nativePath.sep) == 0) {
       path = path.substr(1)
     }
 
-    if (path.lastIndexOf('/') == path.length - 1) {
+    if (path.lastIndexOf(nativePath.sep) == path.length - 1) {
       path.substr(0, path.length - 1)
     }
 
-    return path.split('/')
+    return path.split(nativePath.sep)
   }
 
   iterateFiles(handleFile: (file: Path) => void, recursive: boolean = true) {
