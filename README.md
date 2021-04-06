@@ -1,15 +1,15 @@
-# Mega Nice Path
+# Knight Path by Coderitter
 
 ## Install
 
-`npm install mega-nice-path`
+`npm install knight-path`
 
 ## Overview
 
 ### Create
 
 ```typescript
-import Path from 'mega-nice-path'
+import Path from 'knight-path'
 
 new Path('path/to/something')
 new Path('path', 'to', 'something')

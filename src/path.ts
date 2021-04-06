@@ -55,7 +55,7 @@ export default class Path {
   }
 
   iterateFiles(handleFile: (file: Path) => void, recursive: boolean = true) {
-    if (this.isDir) {
+    if (this.isDir()) {
       for (let content of this.contents()) {
         if (content.isFile()) {
           handleFile(content)
