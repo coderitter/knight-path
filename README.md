@@ -40,16 +40,33 @@ path.path = 'some/other/path'
 path.setPath('some', new Path('other'), 'path'))
 ```
 
-## Directory or file
+## Path
 
 ```typescript
-let dir = new Path('some/directory')
-dir.isDir() == true
-dir.exists() == true
+path.equals('in/any/directory') == true
+path.startsWith('in/any') == true
+path.endsWith('any/directory') == true
+path.indexOf('any/directory') == 1
 
-let file = new Path(dir, 'awesome.file')
-file.isFile() == true
-file.exists() == true
+path.prepend('in')
+path.prependToNew('in')
+path.parts == 'in/some/directory'
+
+path.append('for/content')
+path.appendToNew('for/content')
+path.path == 'in/some/directory/for/content'
+
+path.insert(4, 'awesome')
+path.insertToNew(4, 'awesome')
+path.path == 'in/some/directory/for/awesome/content'
+
+path.subtract('for/awesome/content')
+path.subtractToNew('for/awesome/content')
+path.path == 'in/some/directory'
+
+path.replace('some', 'any')
+path.replaceToNew('some', 'any')
+path.path == 'in/any/directory'
 ```
 
 ## Directory
@@ -57,33 +74,18 @@ file.exists() == true
 ```typescript
 let dir = new Path('some/directory')
 
-dir.prepend('in')
-dir.parts == 'in/some/directory'
+dir.exists()
+dir.isDir()
 
-dir.append('for/awesome/content')
-dir.parts == 'in/some/directory/for/awesome/content'
-
-let awesome = dir.appendToNew('awesome.file')
-
-dir.subtract('some/directory')
-dir.path == 'in/for/awesome/content'
-
-dir.equals('in/for') == false
-dir.startsWith('in/for') == true
-
-dir.delete() // deletes the whole directory including its contents and sub contents
 dir.mkDir() // creates the whole file path if not exists
+dir.delete() // deletes the whole directory including its contents and sub contents
+dir.move(new Path('to/another/directory'))
 
 let recursive = true
 dir.iterateFiles((file: Path) => { ... }, recursive)
 
-for (let path of dir.contents()) {
-  if (path.isDir()) {
-
-  }
-  else {
-
-  }
+for (let path of dir.dirContent()) {
+  // iterate through directories and files
 }
 ```
 
@@ -91,6 +93,9 @@ for (let path of dir.contents()) {
 
 ```typescript
 let file = new Path('some/directory/awesome.file')
+
+file.exists()
+file.isFile()
 
 file.filename == 'awesome.file'
 file.extension == '.file'
@@ -111,9 +116,16 @@ file.path == 'some/directory/awesome.ext'
 file.dir = 'some/other/directory'
 file.path == 'some/other/directory/awesome.ext'
 
+file.size()
+file.touch()
+file.writeFile('some content')
+file.prependFile('something before')
+file.appendFile('something after')
+file.copy(new Path('into/another/directory'))
+file.copy(new Path('into/another/directory/to/or/over/a/new/file.ext'))
 file.delete()
 
 import * as fs from 'fs'
-let writeStream: fs.WriteStream = file.write({ flags: 'a' }) // creates a Node fs.WriteStream in append mode
-let readStream: fs.ReadStream = file.read() // creates a Node fs.ReadStream
+let writeStream: fs.WriteStream = file.writeStream({ flags: 'a' }) // creates a Node fs.WriteStream in append mode
+let readStream: fs.ReadStream = file.readStream() // creates a Node fs.ReadStream
 ```
