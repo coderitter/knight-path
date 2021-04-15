@@ -16,26 +16,40 @@ new Path('path', 'to', 'something')
 new Path('path', 'to/something')
 
 let path = new Path('path/to/something')
+path.path = 'path/to/something'
+path.parts == ['path', 'to', 'something']
+
 let otherPath = new Path(path, 'which/is', 'awesome')
+otherPath.path == 'path/to/something/which/is/awesome'
+otherPath.parts == ['path', 'to', 'something', 'which', 'is', 'awesome']
+
+let rootPath = new Path('/path/to/something')
+rootPath.path == '/path/to/something'
+rootPath.parts == ['/', 'path', 'to', 'something']
+
+path.length == 3
+```
+
+### Change
+
+```typescript
+let path = new Path('some/path')
+
+path.parts = ['some', 'other', 'path']
+path.path = 'some/other/path'
+path.setPath('some', new Path('other'), 'path'))
 ```
 
 ## Directory or file
 
 ```typescript
 let dir = new Path('some/directory')
-let file = new Path(dir, 'awesome.file')
-
 dir.isDir() == true
 dir.exists() == true
 
+let file = new Path(dir, 'awesome.file')
 file.isFile() == true
 file.exists() == true
-
-dir.path == 'some/directory'
-dir.part(0) == 'some'
-
-file.path == 'some/directory/awesome.file'
-file.part(2) == 'awesome.file'
 ```
 
 ## Directory
@@ -44,9 +58,10 @@ file.part(2) == 'awesome.file'
 let dir = new Path('some/directory')
 
 dir.prepend('in')
+dir.parts == 'in/some/directory'
+
 dir.append('for/awesome/content')
-dir.path == 'in/some/directory/for/awesome/content')
-dir.split() == ['in', 'some', 'directory', 'for', 'awesome', 'content']
+dir.parts == 'in/some/directory/for/awesome/content'
 
 let awesome = dir.appendToNew('awesome.file')
 
@@ -78,10 +93,23 @@ for (let path of dir.contents()) {
 let file = new Path('some/directory/awesome.file')
 
 file.filename == 'awesome.file'
+file.extension == '.file'
 file.filenameWithoutExtension == 'awesome'
 file.dir == 'some/directory'
-file.dirPath() == new Path('some/directory')
-file.split() == ['some', 'directory', 'awesome.file']
+file.dirPath == new Path('some/directory')
+
+file.filename = 'amazing.file'
+file.path = 'some/directory/amazing.file'
+
+file.extension = 'ext'
+file.extension = '.ext'
+file.path == 'some/directory/amazing.ext'
+
+file.filenameWithoutExtension = 'awesome'
+file.path == 'some/directory/awesome.ext'
+
+file.dir = 'some/other/directory'
+file.path == 'some/other/directory/awesome.ext'
 
 file.delete()
 
