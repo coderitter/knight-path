@@ -1,6 +1,6 @@
 {
   "name": "knight-path",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A data structure to work with paths",
   "main": "lib/path.js",
   "types": "lib/path.d.ts",
