@@ -2,7 +2,11 @@ import * as fs from 'fs'
 import { WriteFileOptions } from 'node:fs'
 import * as nativePath from 'path'
 
-export default class Path {
+export function path(...parts: (string|Path)[]): Path {
+  return new Path(...parts)
+}
+
+export class Path {
 
   parts: string[]
 
@@ -166,7 +170,8 @@ export default class Path {
   }
 
   appendToNew(...parts: (string|Path)[]): Path {
-    return new Path(this, ...parts)
+    let intermediary = new Path(this.path, ...parts)
+    return new Path(intermediary.path)
   }
 
   prepend(...parts: (string|Path)[]) {
@@ -232,7 +237,7 @@ export default class Path {
 
   replaceToNew(path: string|Path, ...parts: (string|Path)[]): Path {
     let newPath = new Path(this)
-    newPath.subtract(...parts)
+    newPath.replace(path, ...parts)
     return newPath
   }
 
@@ -436,7 +441,7 @@ export default class Path {
     }
   }
 
-  copy(...parts: (string|Path)[]) {
+  copyTo(...parts: (string|Path)[]) {
     let to = new Path(...parts)
 
     if (this.isFile()) {
@@ -447,19 +452,22 @@ export default class Path {
       fs.copyFileSync(this.path, to.path)
     }
     else if (this.isDir()) {
+      to.append(this.parts[this.parts.length - 1])
+      to.mkDir()
+
       for (let path of this.readDir()) {
         let toPath = to.appendToNew(path.subtractToNew(this))
-        
+
         if (path.isDir()) {
           toPath.mkDir()
         }
 
-        path.copy(toPath)
+        path.copyFilesTo(toPath.path)
       }
     }
   }
 
-  async copyAsync(...parts: (string|Path)[]) {
+  async copyToAsync(...parts: (string|Path)[]) {
     let to = new Path(...parts)
 
     if (await this.isFileAsync()) {
@@ -477,7 +485,53 @@ export default class Path {
           await toPath.mkDirAsync()
         }
 
-        await path.copyAsync(toPath)
+        await path.copyToAsync(toPath)
+      }
+    }
+  }
+
+  copyFilesTo(...parts: (string|Path)[]) {
+    let to = new Path(...parts)
+
+    if (this.isFile()) {
+      if (to.isDir()) {
+        to.filename = this.filename
+      }
+
+      fs.copyFileSync(this.path, to.path)
+    }
+    else if (this.isDir()) {
+      for (let path of this.readDir()) {
+        let toPath = to.appendToNew(path.subtractToNew(this))
+
+        if (path.isDir()) {
+          to.mkDir()
+        }
+
+        path.copyFilesTo(toPath.path)
+      }
+    }
+  }
+
+  async copyFilesToAsync(...parts: (string|Path)[]) {
+    let to = new Path(...parts)
+
+    if (await this.isFileAsync()) {
+      if (await to.isDirAsync()) {
+        to.filename = this.filename
+      }
+
+      await new Promise<void>((resolve, reject) => fs.copyFile(this.path, to.path, err => err ? reject(err) : resolve()))
+    }
+    else if (await this.isDirAsync()) {
+      for (let path of await this.readDirAsync()) {
+        let toPath = to.appendToNew(path.subtractToNew(this))
+
+        if (await path.isDirAsync()) {
+          await to.mkDirAsync()
+        }
+
+        await path.copyFilesToAsync(toPath.path)
       }
     }
   }

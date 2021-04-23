@@ -9,7 +9,7 @@
 ### Create
 
 ```typescript
-import Path from 'knight-path'
+import { Path } from 'knight-path'
 
 new Path('path/to/something')
 new Path('path', 'to', 'something')
@@ -26,6 +26,10 @@ otherPath.parts == ['path', 'to', 'something', 'which', 'is', 'awesome']
 let rootPath = new Path('/path/to/something')
 rootPath.path == '/path/to/something'
 rootPath.parts == ['/', 'path', 'to', 'something']
+
+let dotsPath = new Path('some/path', '..', 'other/path')
+dots.path == 'some/other/path'
+dots.parts == ['some', 'path', '..', 'other/path']
 
 path.length == 3
 ```
@@ -79,12 +83,13 @@ dir.isDir()
 
 dir.mkDir() // creates the whole file path if not exists
 dir.delete() // deletes the whole directory including its contents and sub contents
-dir.move(new Path('to/another/directory'))
+dir.copyTo(new Path('to/another/directory')) // copies the directory
+dir.copyFilesTo(new Path('to/another/directory')) // copies the files inside the directory
 
 let recursive = true
 dir.iterateFiles((file: Path) => { ... }, recursive)
 
-for (let path of dir.dirContent()) {
+for (let path of dir.readDir()) {
   // iterate through directories and files
 }
 ```
@@ -121,8 +126,15 @@ file.touch()
 file.writeFile('some content')
 file.prependFile('something before')
 file.appendFile('something after')
-file.copy(new Path('into/another/directory'))
-file.copy(new Path('into/another/directory/to/or/over/a/new/file.ext'))
+
+// if directory is a directory it will append the file
+file.copyTo(new Path('into/another/directory'))
+// if a file.ext is not a directory it will assume it as the filename
+file.copyTo(new Path('into/another/directory/file.ext'))
+
+file.copyFilesTo(new Path('into/another/directory')) // does the same as copyTo
+file.copyFilesTo(new Path('into/another/directory/file.ext')) // does the same as copyTo
+
 file.delete()
 
 import * as fs from 'fs'

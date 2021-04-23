@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'mocha'
-import Path from '../src/path'
+import { Path } from '../src/path'
 
 describe('Path', function() {
   afterEach(function() {
@@ -69,7 +69,7 @@ describe('Path', function() {
     })
   })
 
-  describe('newPath', function() {
+  describe('appendToNew', function() {
     it('should accept a string', function() {
       let path = new Path('some/path')
       let newPath = path.appendToNew('to/somewhere')
@@ -80,6 +80,15 @@ describe('Path', function() {
       let path = new Path('some/path')
       let newPath = path.appendToNew(new Path('to/somewhere'))
       expect(newPath.parts).to.deep.equal(['some', 'path', 'to', 'somewhere'])
+    })
+
+    it('should resolve ..', function() {
+      let path = new Path('some/path', '..', 'other/path')
+      expect(path.parts).to.deep.equal(['some', 'path', '..', 'other', 'path'])
+
+      let newPath = path.appendToNew('..')
+      expect(newPath.path).to.equal('some/other')
+      expect(newPath.parts).to.deep.equal(['some', 'other'])
     })
   })
 
@@ -440,7 +449,7 @@ describe('Path', function() {
       expect(to.size()).to.equal(0)
     })
 
-    it('should copy a whole directory into another one', function() {
+    it.only('should copy a whole directory into another one', function() {
       let testDir = new Path(__dirname, 'testdir')
       let from = testDir.appendToNew('from')
       let file1 = from.appendToNew('file1.file')
@@ -456,10 +465,12 @@ describe('Path', function() {
       
       from.copy(to)
 
+      to.append('from')
+
       expect(to.exists()).to.be.true
-      expect(to.appendToNew(file1.subtractToNew(from)).exists()).to.be.true
-      expect(to.appendToNew(subdir1.subtractToNew(from)).exists()).to.be.true
-      expect(to.appendToNew(file2.subtractToNew(from)).exists()).to.be.true
+      expect(to.appendToNew('file1.file').exists()).to.be.true
+      expect(to.appendToNew('subdir1').exists()).to.be.true
+      expect(to.appendToNew('subdir1/file2.file').exists()).to.be.true
     })
   })
 })
