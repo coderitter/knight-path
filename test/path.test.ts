@@ -428,7 +428,7 @@ describe('Path', function() {
       file.touch()
 
       let to = new Path(file.dir, 'subdir')
-      file.copy(to)
+      file.copyTo(to)
       
       expect(file.exists()).to.be.true
     })
@@ -443,13 +443,13 @@ describe('Path', function() {
       to.appendFile('abc')
       expect(to.size()).to.equal(3)
       
-      file.copy(to)
+      file.copyTo(to)
 
       expect(to.isFile()).to.be.true
       expect(to.size()).to.equal(0)
     })
 
-    it.only('should copy a whole directory into another one', function() {
+    it('should copy a whole directory into another one', function() {
       let testDir = new Path(__dirname, 'testdir')
       let from = testDir.appendToNew('from')
       let file1 = from.appendToNew('file1.file')
@@ -463,7 +463,7 @@ describe('Path', function() {
       let to = testDir.appendToNew('to')
       to.mkDir()
       
-      from.copy(to)
+      from.copyTo(to)
 
       to.append('from')
 
