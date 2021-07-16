@@ -405,7 +405,7 @@ export class Path {
     if (this.isFile()) {
       let existingData = this.readFile()
       this.writeFile(data)
-      this.appendFile(existingData)
+      this.appendFile(existingData, options)
     }
   }
 
@@ -417,7 +417,7 @@ export class Path {
     if (await this.isFileAsync()) {
       let existingData = await this.readFileAsync()
       await this.writeFileAsync(data)
-      await this.appendFileAsync(existingData)
+      await this.appendFileAsync(existingData, options)
     }
   }
 
