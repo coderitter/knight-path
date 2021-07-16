@@ -462,7 +462,7 @@ export class Path {
           toPath.mkDir()
         }
 
-        path.copyFilesTo(toPath.path)
+        path.copyFilesTo(toPath)
       }
     }
   }
@@ -501,14 +501,18 @@ export class Path {
       fs.copyFileSync(this.path, to.path)
     }
     else if (this.isDir()) {
+      if (! to.isFile()) {
+        to.mkDir()
+      }
+
       for (let path of this.readDir()) {
         let toPath = to.appendToNew(path.subtractToNew(this))
 
         if (path.isDir()) {
-          to.mkDir()
+          toPath.mkDir()
         }
 
-        path.copyFilesTo(toPath.path)
+        path.copyFilesTo(toPath)
       }
     }
   }
@@ -524,14 +528,18 @@ export class Path {
       await new Promise<void>((resolve, reject) => fs.copyFile(this.path, to.path, err => err ? reject(err) : resolve()))
     }
     else if (await this.isDirAsync()) {
+      if (! await to.isFileAsync()) {
+        await to.mkDirAsync()
+      }
+
       for (let path of await this.readDirAsync()) {
         let toPath = to.appendToNew(path.subtractToNew(this))
 
         if (await path.isDirAsync()) {
-          await to.mkDirAsync()
+          await toPath.mkDirAsync()
         }
 
-        await path.copyFilesToAsync(toPath.path)
+        await path.copyFilesToAsync(toPath)
       }
     }
   }

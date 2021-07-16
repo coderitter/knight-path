@@ -421,7 +421,7 @@ describe('Path', function() {
     })
   })
 
-  describe('copy', function() {
+  describe('copyTo', function() {
     it('should copy a file into a directory', function() {
       let testDir = new Path(__dirname, 'testdir')
       let file = testDir.appendToNew('awesome.file')
@@ -461,11 +461,58 @@ describe('Path', function() {
       subdir2.mkDir()
 
       let to = testDir.appendToNew('to')
-      to.mkDir()
-      
       from.copyTo(to)
 
       to.append('from')
+
+      expect(to.exists()).to.be.true
+      expect(to.appendToNew('file1.file').exists()).to.be.true
+      expect(to.appendToNew('subdir1').exists()).to.be.true
+      expect(to.appendToNew('subdir1/file2.file').exists()).to.be.true
+    })
+  })
+
+  describe('copyFilesTo', function() {
+    it('should copy a file into a directory', function() {
+      let testDir = new Path(__dirname, 'testdir')
+      let file = testDir.appendToNew('awesome.file')
+      file.touch()
+
+      let to = new Path(file.dir, 'subdir')
+      file.copyFilesTo(to)
+      
+      expect(file.exists()).to.be.true
+    })
+
+    it('should copy a file overwriting an existing file', async function() {
+      let testDir = new Path(__dirname, 'testdir')
+      let file = testDir.appendToNew('awesome.file')
+      file.touch()
+      expect(file.size()).to.equal(0)
+
+      let to = testDir.appendToNew('amazing.file')
+      to.appendFile('abc')
+      expect(to.size()).to.equal(3)
+      
+      file.copyFilesTo(to)
+
+      expect(to.isFile()).to.be.true
+      expect(to.size()).to.equal(0)
+    })
+
+    it('should copy a whole directory into another one', function() {
+      let testDir = new Path(__dirname, 'testdir')
+      let from = testDir.appendToNew('from')
+      let file1 = from.appendToNew('file1.file')
+      let subdir1 = from.appendToNew('subdir1')
+      let subdir2 = from.appendToNew('subdir1')
+      let file2 = subdir1.appendToNew('file2.file')
+      file1.touch()
+      file2.touch()
+      subdir2.mkDir()
+
+      let to = testDir.appendToNew('to')
+      from.copyFilesTo(to)
 
       expect(to.exists()).to.be.true
       expect(to.appendToNew('file1.file').exists()).to.be.true
