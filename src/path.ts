@@ -402,21 +402,21 @@ export class Path {
     }
   }
 
-  readFile(options?: { encoding?: null; flag?: string; } | null): string {
-    return this.readFileBytes(options).toString('utf8')
-  }
-
-  async readFileAsync(options?: { encoding?: null; flag?: string; } | null): Promise<string> {
-    let buffer = await this.readFileBytesAsync(options)
-    return buffer.toString('utf8')
-  }
-
-  readFileBytes(options?: { encoding?: null; flag?: string; } | null): Buffer {
+  readFile(options?: { encoding?: null; flag?: string; } | null): Buffer {
     return fs.readFileSync(this.path, options)
   }
 
-  async readFileBytesAsync(options?: { encoding?: null; flag?: string; } | null): Promise<Buffer> {
+  async readFileAsync(options?: { encoding?: null; flag?: string; } | null): Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => fs.readFile(this.path, options, (err, data) => err ? reject(err) : resolve(data)))
+  }
+
+  readFileAsUtf8(options?: { encoding?: null; flag?: string; } | null): string {
+    return this.readFile(options).toString('utf8')
+  }
+
+  async readFileAsUtf8Async(options?: { encoding?: null; flag?: string; } | null): Promise<string> {
+    let buffer = await this.readFileAsync(options)
+    return buffer.toString('utf8')
   }
 
   writeFile(data: string | NodeJS.ArrayBufferView, options?: WriteFileOptions) {
@@ -435,7 +435,7 @@ export class Path {
     return new Promise<void>((resolve, reject) => fs.writeFile(this.path, data, options, err => err ? reject(err) : resolve()))
   }
 
-  prependFile(data: string, options?: fs.WriteFileOptions) {
+  prependToFile(data: string, options?: fs.WriteFileOptions) {
     if (! this.exists()) {
       this.touch()
     }
@@ -443,11 +443,11 @@ export class Path {
     if (this.isFile()) {
       let existingData = this.readFile()
       this.writeFile(data)
-      this.appendFile(existingData, options)
+      this.appendToFile(existingData, options)
     }
   }
 
-  async prependFileAsync(data: string, options?: fs.WriteFileOptions) {
+  async prependToFileAsync(data: string, options?: fs.WriteFileOptions) {
     if (! await this.existsAsync()) {
       await this.touchAsync()
     }
@@ -455,11 +455,11 @@ export class Path {
     if (await this.isFileAsync()) {
       let existingData = await this.readFileAsync()
       await this.writeFileAsync(data)
-      await this.appendFileAsync(existingData, options)
+      await this.appendToFileAsync(existingData, options)
     }
   }
 
-  appendFile(data: string | Uint8Array, options?: fs.WriteFileOptions) {
+  appendToFile(data: string | Uint8Array, options?: fs.WriteFileOptions) {
     if (! this.exists()) {
       this.touch()
     }
@@ -469,7 +469,7 @@ export class Path {
     }
   }
 
-  async appendFileAsync(data: any, options: fs.WriteFileOptions = {}) {
+  async appendToFileAsync(data: any, options: fs.WriteFileOptions = {}) {
     if (! await this.existsAsync()) {
       await this.touchAsync()
     }

@@ -332,14 +332,14 @@ describe('Path', function() {
       let file = testDir.appendToNew('awesome.file')
       file.touch()
       file.writeFile('test')
-      expect(file.readFile()).to.equal('test')
+      expect(file.readFileAsUtf8()).to.equal('test')
     })
 
     it('should create and write an empty file', function() {
       let testDir = new Path(__dirname, 'testdir')
       let file = testDir.appendToNew('awesome.file')
       file.writeFile('test')
-      expect(file.readFile()).to.equal('test')
+      expect(file.readFileAsUtf8()).to.equal('test')
     })
 
     it('should overwrite an existing file', function() {
@@ -347,43 +347,43 @@ describe('Path', function() {
       let file = testDir.appendToNew('awesome.file')
       file.writeFile('test')
       file.writeFile('test2')
-      expect(file.readFile()).to.equal('test2')
+      expect(file.readFileAsUtf8()).to.equal('test2')
     })
   })
 
-  describe('prependFile', function() {
+  describe('prependToFile', function() {
     it('should prepend to an existing file', async function() {
       let testDir = new Path(__dirname, 'testdir')
       let file = testDir.appendToNew('awesome.file')
       file.touch()
-      file.prependFile('test')
-      expect(file.readFile()).to.equal('test')
-      file.prependFile('before')
-      expect(file.readFile()).to.equal('beforetest')
+      file.prependToFile('test')
+      expect(file.readFileAsUtf8()).to.equal('test')
+      file.prependToFile('before')
+      expect(file.readFileAsUtf8()).to.equal('beforetest')
     })
 
     it('should create a new file and prepend', function() {
       let testDir = new Path(__dirname, 'testdir')
       let file = testDir.appendToNew('awesome.file')
-      file.prependFile('test')
-      expect(file.readFile()).to.equal('test')
+      file.prependToFile('test')
+      expect(file.readFileAsUtf8()).to.equal('test')
     })
   })
 
-  describe('appendFile', function() {
+  describe('appendToFile', function() {
     it('should append to an existing file', async function() {
       let testDir = new Path(__dirname, 'testdir')
       let file = testDir.appendToNew('awesome.file')
       file.writeFile('test')
-      expect(file.readFile()).to.equal('test')
-      file.appendFile('after')
-      expect(file.readFile()).to.equal('testafter')
+      expect(file.readFileAsUtf8()).to.equal('test')
+      file.appendToFile('after')
+      expect(file.readFileAsUtf8()).to.equal('testafter')
     })
 
     it('should create a new file and append', function() {
       let testDir = new Path(__dirname, 'testdir')
       let file = testDir.appendToNew('awesome.file')
-      file.appendFile('test')
+      file.appendToFile('test')
       expect(file.size()).to.equal(4)
     })
   })
@@ -440,7 +440,7 @@ describe('Path', function() {
       expect(file.size()).to.equal(0)
 
       let to = testDir.appendToNew('amazing.file')
-      to.appendFile('abc')
+      to.appendToFile('abc')
       expect(to.size()).to.equal(3)
       
       file.copyTo(to)
@@ -491,7 +491,7 @@ describe('Path', function() {
       expect(file.size()).to.equal(0)
 
       let to = testDir.appendToNew('amazing.file')
-      to.appendFile('abc')
+      to.appendToFile('abc')
       expect(to.size()).to.equal(3)
       
       file.copyFilesTo(to)

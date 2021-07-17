@@ -123,9 +123,11 @@ file.path == 'some/other/directory/awesome.ext'
 
 file.size()
 file.touch()
+let buffer = file.readFile()
+let utf8 = file.readFileAsUtf8()
 file.writeFile('some content')
-file.prependFile('something before')
-file.appendFile('something after')
+file.prependToFile('something before')
+file.appendToFile('something after')
 
 // if directory is a directory it will append the file
 file.copyTo(new Path('into/another/directory'))
