@@ -84,8 +84,9 @@ export class Path {
     return new Path(this.dir)
   }
 
-  setPath(...parts: (string|Path)[]) {
+  setPath(...parts: (string|Path)[]): Path {
     this.parts = new Path(...parts).parts
+    return this
   }
 
   equals(...path: (string|Path)[]): boolean {
@@ -158,7 +159,7 @@ export class Path {
     return index + endsWith.length == this.length
   }
 
-  append(...parts: (string|Path)[]) {
+  append(...parts: (string|Path)[]): Path {
     for (let part of parts) {
       if (typeof part == 'string') {
         this.parts.push(...Path.split(part, false))
@@ -167,6 +168,8 @@ export class Path {
         this.parts.push(...part.parts)
       }
     }
+
+    return this
   }
 
   appendToNew(...parts: (string|Path)[]): Path {
@@ -174,7 +177,7 @@ export class Path {
     return new Path(intermediary.path)
   }
 
-  prepend(...parts: (string|Path)[]) {
+  prepend(...parts: (string|Path)[]): Path {
     for (let part of parts) {
       if (typeof part == 'string') {
         this.parts.unshift(...Path.split(part, false))
@@ -183,20 +186,23 @@ export class Path {
         this.parts.unshift(...part.parts)
       }
     }
+
+    return this
   }
 
   prependToNew(...parts: (string|Path)[]): Path {
     return new Path(...parts, this)
   }
 
-  insert(index: number, ...parts: (string|Path)[]) {
+  insert(index: number, ...parts: (string|Path)[]): Path {
     let insert = new Path(...parts)
 
     if (index < 0 && index >= this.length) {
-      return
+      return this
     }
 
     this.parts.splice(index, 0, ...insert.parts)
+    return this
   }
 
   insertToNew(index: number, ...parts: (string|Path)[]): Path {
@@ -205,13 +211,15 @@ export class Path {
     return newPath
   }
 
-  subtract(...parts: (string|Path)[]) {
+  subtract(...parts: (string|Path)[]): Path {
     let subtract = new Path(...parts)
     let start = this.indexOf(subtract)
 
     if (start > -1) {
       this.parts.splice(start, subtract.length)
     }
+
+    return this
   }
 
   subtractToNew(...parts: (string|Path)[]): Path {
@@ -220,11 +228,11 @@ export class Path {
     return newPath
   }
 
-  replace(path: string|Path, ...parts: (string|Path)[]) {
+  replace(path: string|Path, ...parts: (string|Path)[]): Path {
     let indexOf = this.indexOf(path)
 
     if (indexOf == -1) {
-      return
+      return this
     }
 
     let replace = new Path(...parts)
@@ -233,6 +241,8 @@ export class Path {
     if (start > -1) {
       this.parts.splice(start, replace.length, ...replace.parts)
     }
+
+    return this
   }
 
   replaceToNew(path: string|Path, ...parts: (string|Path)[]): Path {
@@ -296,10 +306,12 @@ export class Path {
     return stats.size
   }
 
-  mkDir() {
+  mkDir(): Path {
     if (! this.exists()) {
       fs.mkdirSync(this.path, { recursive: true })
     }
+
+    return this
   }
 
   async mkDirAsync() {
@@ -308,12 +320,14 @@ export class Path {
     }
   }
 
-  touch() {
+  touch(): Path {
     if (! this.exists()) {
       this.dirPath.mkDir()
       let fd = fs.openSync(this.path, 'w')
       fs.closeSync(fd)
     }
+
+    return this
   }
 
   async touchAsync() {
@@ -321,6 +335,30 @@ export class Path {
       await this.dirPath.mkDirAsync()
       let fd = await new Promise<number>((resolve, reject) => fs.open(this.path, 'w', undefined, (err, fd) => err ? reject(err) : resolve(fd)))
       await new Promise<void>((resolve, reject) => fs.close(fd, err => err ? reject(err) : resolve()))
+    }
+  }
+
+  delete(): Path {
+    if (this.exists()) {
+      if (this.isDir()) {
+        fs.rmdirSync(this.path, { recursive: true })
+      }
+      else {
+        fs.unlinkSync(this.path)
+      }
+    }
+
+    return this
+  }
+
+  async deleteAsync() {
+    if (await this.existsAsync()) {
+      if (await this.isDirAsync()) {
+        await new Promise<void>((resolve, reject) => fs.rmdir(this.path, { recursive: true }, err => err ? reject(err) : resolve()))
+      }
+      else {
+        await new Promise<void>((resolve, reject) => fs.unlink(this.path, err => err ? reject(err) : resolve()))
+      }
     }
   }
 
@@ -540,28 +578,6 @@ export class Path {
         }
 
         await path.copyFilesToAsync(toPath)
-      }
-    }
-  }
-
-  delete() {
-    if (this.exists()) {
-      if (this.isDir()) {
-        fs.rmdirSync(this.path, { recursive: true })
-      }
-      else {
-        fs.unlinkSync(this.path)
-      }
-    }
-  }
-
-  async deleteAsync() {
-    if (await this.existsAsync()) {
-      if (await this.isDirAsync()) {
-        await new Promise<void>((resolve, reject) => fs.rmdir(this.path, { recursive: true }, err => err ? reject(err) : resolve()))
-      }
-      else {
-        await new Promise<void>((resolve, reject) => fs.unlink(this.path, err => err ? reject(err) : resolve()))
       }
     }
   }
