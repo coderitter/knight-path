@@ -16,35 +16,68 @@ describe('Path', function() {
       let path2 = new Path('some/path/')
       expect(path2.parts).to.deep.equal(['some', 'path'])
 
-      let path3 = new Path('/some/path')
-      expect(path3.parts).to.deep.equal(['/', 'some', 'path'])
+      let path3 = new Path('./some/./path/.')
+      expect(path3.parts).to.deep.equal(['some', 'path'])
 
-      let path4 = new Path('/some/path/')
-      expect(path4.parts).to.deep.equal(['/', 'some', 'path'])
+      let path4 = new Path('some/../path')
+      expect(path4.parts).to.deep.equal(['path'])
+
+      let path5 = new Path('/some/path')
+      expect(path5.parts).to.deep.equal(['/', 'some', 'path'])
+
+      let path6 = new Path('/some/path/')
+      expect(path6.parts).to.deep.equal(['/', 'some', 'path'])
+
+      let path7 = new Path('/some/./path/.')
+      expect(path7.parts).to.deep.equal(['/', 'some', 'path'])
+
+      let path8 = new Path('/some/../path')
+      expect(path8.parts).to.deep.equal(['/', 'path'])
     })
 
-    it('should accept a multiple strings', function() {
+    it('should accept multiple strings', function() {
       let path1 = new Path('some/path', 'to', 'something')
       expect(path1.parts).to.deep.equal(['some', 'path', 'to', 'something'])
 
-      let path2 = new Path('/some/path/', '/to/', '/something/')
-      expect(path2.parts).to.deep.equal(['/', 'some', 'path', 'to', 'something'])
+      let path2 = new Path('some/./path/.', '.', './something/.')
+      expect(path2.parts).to.deep.equal(['some', 'path', 'something'])
+
+      let path3 = new Path('some/path', '..', 'something')
+      expect(path3.parts).to.deep.equal(['some', 'something'])
+
+      let path4 = new Path('/some/path/', '/to/', '/something/')
+      expect(path4.parts).to.deep.equal(['/', 'some', 'path', 'to', 'something'])
+
+      let path5 = new Path('/./some/./path/.', '.', './something/.')
+      expect(path5.parts).to.deep.equal(['/', 'some', 'path', 'something'])
+
+      let path6 = new Path('/some/path', '..', 'something')
+      expect(path6.parts).to.deep.equal(['/', 'some', 'something'])
     })
 
     it('should accept a path', function() {
       let path1 = new Path(new Path('some/path'))
       expect(path1.parts).to.deep.equal(['some', 'path'])
 
-      let path2 = new Path(new Path('/some/path'))
-      expect(path2.parts).to.deep.equal(['/', 'some', 'path'])
+      let path2 = new Path(new Path('./some/./path/.'))
+      expect(path2.parts).to.deep.equal(['some', 'path'])
+
+      let path3 = new Path(new Path('/some/path'))
+      expect(path3.parts).to.deep.equal(['/', 'some', 'path'])
+
+      let path4 = new Path(new Path('/./some/./path/.'))
+      expect(path4.parts).to.deep.equal(['/', 'some', 'path'])
     })
 
     it('should accept multiple paths', function() {
-      let pathParameter1 = new Path('some/path')
-      let pathParameter2 = new Path('to/something')
-
-      let path = new Path(pathParameter1, pathParameter2)
+      let path = new Path(new Path('some/path'), new Path('to/something'))
       expect(path.parts).to.deep.equal(['some', 'path', 'to', 'something'])
+
+      let path2 = new Path(new Path('./some/./path/.'), new Path('./to/./something/.'))
+      expect(path2.parts).to.deep.equal(['some', 'path', 'to', 'something'])
+
+      let path3 = new Path(new Path('some/path'), new Path('..'), new Path('something'))
+      expect(path3.parts).to.deep.equal(['some', 'something'])
     })
 
     it('should accept the root path alone', function() {
@@ -64,8 +97,24 @@ describe('Path', function() {
 
     it('should set a new path', function() {
       let path = new Path('some/path')
+
       path.path = 'some/other/path'
       expect(path.parts).to.deep.equal(['some', 'other', 'path'])
+
+      path.path = './some/./path/.'
+      expect(path.parts).to.deep.equal(['some', 'path'])
+
+      path.path = 'some/../path'
+      expect(path.parts).to.deep.equal(['path'])
+
+      path.path = '/some/other/path'
+      expect(path.parts).to.deep.equal(['/', 'some', 'other', 'path'])
+
+      path.path = '/./some/./path/.'
+      expect(path.parts).to.deep.equal(['/', 'some', 'path'])
+
+      path.path = '/some/../path'
+      expect(path.parts).to.deep.equal(['/', 'path'])
     })
   })
 
@@ -82,13 +131,36 @@ describe('Path', function() {
       expect(newPath.parts).to.deep.equal(['some', 'path', 'to', 'somewhere'])
     })
 
-    it('should resolve ..', function() {
-      let path = new Path('some/path', '..', 'other/path')
-      expect(path.parts).to.deep.equal(['some', 'path', '..', 'other', 'path'])
+    it('should resolve .', function() {
+      let path1 = new Path('some/path')
+      expect(path1.parts).to.deep.equal(['some', 'path'])
 
-      let newPath = path.appendToNew('..')
-      expect(newPath.path).to.equal('some/other')
-      expect(newPath.parts).to.deep.equal(['some', 'other'])
+      let newPath1 = path1.appendToNew('./to/./somewhere/.')
+      expect(newPath1.path).to.equal('some/path/to/somewhere')
+      expect(newPath1.parts).to.deep.equal(['some', 'path', 'to', 'somewhere'])
+
+      let path2 = new Path('/some/path')
+      expect(path2.parts).to.deep.equal(['/', 'some', 'path'])
+
+      let newPath2 = path2.appendToNew('./to/./somewhere/.')
+      expect(newPath2.path).to.equal('/some/path/to/somewhere')
+      expect(newPath2.parts).to.deep.equal(['/', 'some', 'path', 'to', 'somewhere'])
+    })
+
+    it('should resolve ..', function() {
+      let path1 = new Path('some/path')
+      expect(path1.parts).to.deep.equal(['some', 'path'])
+
+      let newPath1 = path1.appendToNew('..')
+      expect(newPath1.path).to.equal('some')
+      expect(newPath1.parts).to.deep.equal(['some'])
+
+      let path2 = new Path('/some/path')
+      expect(path2.parts).to.deep.equal(['/', 'some', 'path'])
+
+      let newPath2 = path2.appendToNew('..')
+      expect(newPath2.path).to.equal('/some')
+      expect(newPath2.parts).to.deep.equal(['/', 'some'])
     })
   })
 
@@ -255,6 +327,14 @@ describe('Path', function() {
       let path7 = new Path('path/to/somewhere/cool')
       path7.subtract('cool/')
       expect(path7.parts).to.deep.equal(['path', 'to', 'somewhere'])
+
+      let path8 = new Path('path/to/somewhere/cool')
+      path8.subtract('./to/./somewhere/.')
+      expect(path8.parts).to.deep.equal(['path', 'cool'])
+
+      let path9 = new Path('path/to/somewhere/cool')
+      path9.subtract('to/../somewhere')
+      expect(path9.parts).to.deep.equal(['path', 'to', 'cool'])
     })
 
     it('should subtract a sub path containing the root path', function() {
@@ -267,8 +347,24 @@ describe('Path', function() {
       expect(path2.parts).to.deep.equal(['to', 'somewhere', 'cool'])
 
       let path3 = new Path('/path/to/somewhere/cool')
-      path3.subtract('/to')
-      expect(path3.parts).to.deep.equal(['/', 'path', 'to', 'somewhere', 'cool'])
+      path3.subtract('/./path/.')
+      expect(path3.parts).to.deep.equal(['to', 'somewhere', 'cool'])
+
+      let path4 = new Path('/path/to/somewhere/cool')
+      path4.subtract('/path/to/..')
+      expect(path4.parts).to.deep.equal(['to', 'somewhere', 'cool'])
+
+      let path5 = new Path('/path/to/somewhere/cool')
+      path5.subtract('/to')
+      expect(path5.parts).to.deep.equal(['/', 'path', 'to', 'somewhere', 'cool'])
+
+      let path6 = new Path('/path/to/somewhere/cool')
+      path6.subtract('./to/.')
+      expect(path6.parts).to.deep.equal(['/', 'path', 'somewhere', 'cool'])
+
+      let path7 = new Path('/path/to/somewhere/cool')
+      path7.subtract('/to/../somehwere')
+      expect(path7.parts).to.deep.equal(['/', 'path', 'to', 'somewhere', 'cool'])
     })
 
     it('should not subtract if the sub path does not match', function() {

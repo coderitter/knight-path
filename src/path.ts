@@ -8,28 +8,10 @@ export function path(...parts: (string|Path)[]): Path {
 
 export class Path {
 
-  parts: string[]
+  parts: string[] = []
 
   constructor(...parts: (string|Path)[]) {
-    if (parts.length > 0) {
-      let first = parts[0]
-
-      if (typeof first == 'string') {
-        this.parts = Path.split(first, true)
-      }
-      else {
-        this.parts = []
-        this.append(first)
-      }
-    }
-    else {
-      this.parts = []
-    }
-
-    if (parts.length > 1) {
-      let remaining = parts.splice(1)
-      this.append(...remaining)
-    }
+    this.append(...parts)
   }
 
   get path(): string {
@@ -37,7 +19,8 @@ export class Path {
   }
 
   set path(path: string) {
-    this.parts = Path.split(path)
+    let normalized = nativePath.normalize(path)
+    this.parts = Path.split(normalized)
   }
 
   get length(): number {
@@ -162,30 +145,34 @@ export class Path {
   append(...parts: (string|Path)[]): Path {
     for (let part of parts) {
       if (typeof part == 'string') {
-        this.parts.push(...Path.split(part, false))
+        this.parts.push(...Path.split(part))
       }
       else if (part instanceof Path) {
         this.parts.push(...part.parts)
       }
     }
 
+    this.path = this.path // will call the setter which calls normalize on the path
+
     return this
   }
 
   appendToNew(...parts: (string|Path)[]): Path {
-    let intermediary = new Path(this.path, ...parts)
-    return new Path(intermediary.path)
+    return new Path(this.path, ...parts)
   }
 
   prepend(...parts: (string|Path)[]): Path {
     for (let part of parts) {
       if (typeof part == 'string') {
-        this.parts.unshift(...Path.split(part, false))
+        let normalized = nativePath.normalize(part)
+        this.parts.unshift(...Path.split(normalized))
       }
       else if (part instanceof Path) {
         this.parts.unshift(...part.parts)
       }
     }
+
+    this.path = this.path // will call the setter which calls normalize on the path
 
     return this
   }
@@ -494,7 +481,8 @@ export class Path {
       to.mkDir()
 
       for (let path of this.readDir()) {
-        let toPath = to.appendToNew(path.subtractToNew(this))
+        let relativePath = path.subtractToNew(this)
+        let toPath = to.appendToNew(relativePath)
 
         if (path.isDir()) {
           toPath.mkDir()
