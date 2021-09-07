@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import { WriteFileOptions } from 'node:fs'
 import * as nativePath from 'path'
 
 export function path(...parts: (string|Path)[]): Path {
@@ -406,7 +405,7 @@ export class Path {
     return buffer.toString('utf8')
   }
 
-  writeFile(data: string | NodeJS.ArrayBufferView, options?: WriteFileOptions) {
+  writeFile(data: string | NodeJS.ArrayBufferView, options?: fs.WriteFileOptions) {
     if (! this.exists()) {
       this.touch()
     }
@@ -414,7 +413,7 @@ export class Path {
     fs.writeFileSync(this.path, data, options)
   }
 
-  async writeFileAsync(data: string | NodeJS.ArrayBufferView, options: WriteFileOptions = {}) {
+  async writeFileAsync(data: string | NodeJS.ArrayBufferView, options: fs.WriteFileOptions = {}) {
     if (! await this.existsAsync()) {
       await this.touchAsync()
     }
@@ -570,7 +569,7 @@ export class Path {
     }
   }
 
-  readStream(options?: string | {
+  readStream(options?: BufferEncoding | {
     flags?: string,
     encoding?: BufferEncoding,
     fd?: number,
@@ -584,7 +583,7 @@ export class Path {
     return fs.createReadStream(this.path, options)
   }
 
-  writeStream(options?: string | {
+  writeStream(options?: BufferEncoding | {
     flags?: string,
     encoding?: BufferEncoding,
     fd?: number,
